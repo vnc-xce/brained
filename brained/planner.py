@@ -1,7 +1,7 @@
-"""Plan du jour : quelles matières travailler, et combien de temps.
+"""Daily plan: which subjects to work on, and for how long.
 
-V1 à base de règles. Un futur agent IA pourra remplacer `plan_day` en gardant
-la même entrée (objectifs, fiches dues) et la même sortie (liste de `Session`).
+Rule-based V1. A future AI agent can replace `plan_day` while keeping the same
+input (goals, due cards) and the same output (a list of `Session`).
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 from collections import Counter
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
 from brained.models import Card, Goal, ReviewState, Settings
 
@@ -30,7 +30,7 @@ def due_cards(
     settings: Settings,
     subject: str | None = None,
 ) -> list[Card]:
-    """Fiches à réviser aujourd'hui : d'abord les révisions en retard, puis les nouvelles (limitées)."""
+    """Cards to review today: overdue reviews first, then new cards (capped)."""
     old, new = [], []
     for card in cards:
         if subject and card.subject != subject:
@@ -59,9 +59,9 @@ def plan_day(
     for goal in goals:
         if weekday in goal.days:
             n = due_by_subject.get(goal.subject, 0)
-            reason = "prévu aujourd'hui"
+            reason = "scheduled today"
             if n:
-                reason += f", {n} fiche(s) à revoir"
+                reason += f", {n} card(s) to review"
             candidates.append((goal.priority, Session(goal.subject, goal.minutes, n, reason)))
 
     for subject, n in due_by_subject.items():
@@ -71,7 +71,7 @@ def plan_day(
         minutes = max(5, math.ceil(n * settings.review_minutes_per_card))
         priority = goal.priority if goal else 3
         candidates.append(
-            (priority, Session(subject, minutes, n, f"{n} fiche(s) à revoir, révision courte"))
+            (priority, Session(subject, minutes, n, f"{n} card(s) to review, short session"))
         )
 
     candidates.sort(key=lambda x: (x[0], -x[1].due_cards, x[1].subject))
@@ -87,8 +87,6 @@ def plan_day(
 
 
 def week_schedule(goals: list[Goal], start: date) -> list[tuple[date, list[Goal]]]:
-    from datetime import timedelta
-
     days = []
     for i in range(7):
         d = start + timedelta(days=i)

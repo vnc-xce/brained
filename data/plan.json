@@ -3,12 +3,12 @@
     "daily_budget_minutes": 90,
     "new_cards_per_day": 10,
     "review_minutes_per_card": 1.0,
-    "budget_by_day": {"sam": 240, "dim": 120}
+    "budget_by_day": {"sat": 240, "sun": 120}
   },
   "subjects": {
-    "japonais": {"minutes": 30, "days": ["tous"], "priority": 1},
-    "espagnol": {"minutes": 30, "days": ["lun", "mer", "ven", "dim"], "priority": 2},
-    "cybersecurite": {"minutes": 45, "days": ["mar", "jeu", "sam"], "priority": 2},
-    "poterie": {"minutes": 120, "days": ["sam"], "priority": 1}
+    "japanese": {"minutes": 30, "days": ["all"], "priority": 1},
+    "spanish": {"minutes": 30, "days": ["mon", "wed", "fri", "sun"], "priority": 2},
+    "cybersecurity": {"minutes": 45, "days": ["tue", "thu", "sat"], "priority": 2},
+    "pottery": {"minutes": 120, "days": ["sat"], "priority": 1}
   }
 }

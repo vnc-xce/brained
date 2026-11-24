@@ -1,13 +1,13 @@
 ---
 id: hiragana-a
-subject: japonais
+subject: japanese
 title: Hiragana あ
 tags: [hiragana, kana]
 created: 2026-11-24
 ---
 
 ## Question
-Comment se lit あ ?
+How do you read あ?
 
-## Réponse
-« a »
+## Answer
+"a"

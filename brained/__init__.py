@@ -1,3 +1,3 @@
-"""brained : un cerveau externe pour apprendre (fiches, révision espacée, plan du jour)."""
+"""brained: an external brain for learning (flashcards, spaced repetition, daily plan)."""
 
 __version__ = "0.1.0"

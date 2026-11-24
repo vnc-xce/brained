@@ -1,17 +1,17 @@
 # brained
 
-Un cerveau externe pour apprendre : fiches de révision, révision espacée et plan du jour.
-V1 = proof of concept en ligne de commande, sans dépendance (Python 3.10+).
+An external brain for learning: flashcards, spaced repetition and a daily plan.
+V1 = command-line proof of concept, no dependencies (Python 3.10+).
 
-## Démarrer
+## Getting started
 
 ```bash
 cd brained
-python3 -m brained today      # que faire aujourd'hui ?
-python3 -m brained review     # réviser les fiches du jour
+python3 -m brained today      # what should I study today?
+python3 -m brained review     # review today's cards
 ```
 
-Pour avoir la commande `brained` partout :
+To get the `brained` command everywhere:
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -19,70 +19,70 @@ pip install -e ".[dev]"
 brained today
 ```
 
-Les données sont lues dans `./data` (ou `--data <dossier>`, ou la variable `BRAINED_DATA`).
+Data is read from `./data` (or `--data <folder>`, or the `BRAINED_DATA` environment variable).
 
-## Commandes
+## Commands
 
-| Commande | Rôle |
+| Command | What it does |
 |---|---|
-| `brained today` | plan du jour : matières, durée, fiches à revoir |
-| `brained week` | planning des 7 prochains jours |
-| `brained review [-s matière] [-n 10]` | séance de révision (notes 1 raté, 2 difficile, 3 ok, 4 facile) |
-| `brained add -s japonais -t "Titre" -q "Question" -a "Réponse"` | nouvelle fiche (sans options : mode interactif) |
-| `brained list [-s matière]` | liste des fiches et prochaine révision |
-| `brained stats` | nombre de fiches et fiches à revoir par matière |
+| `brained today` | today's plan: subjects, time, cards to review |
+| `brained week` | schedule for the next 7 days |
+| `brained review [-s subject] [-n 10]` | review session (grades: 1 again, 2 hard, 3 good, 4 easy) |
+| `brained add -s japanese -t "Title" -q "Question" -a "Answer"` | new card (without options: interactive mode) |
+| `brained list [-s subject]` | list cards and their next review date |
+| `brained stats` | number of cards and cards due per subject |
 
-## Les données
+## Data
 
 ```
 data/
-  cards/<matière>/<id>.md   une fiche = un fichier Markdown
-  reviews.json              état de révision de chaque fiche (créé à la 1re révision)
-  plan.json                 objectifs par matière et budget de temps
+  cards/<subject>/<id>.md   one card = one Markdown file
+  reviews.json              review state of each card (created on first review)
+  plan.json                 goals per subject and time budget
 ```
 
-Une fiche question/réponse :
+A question/answer card:
 
 ```markdown
 ---
-id: particule-wa
-subject: japonais
-title: La particule は
-tags: [grammaire]
+id: particle-wa
+subject: japanese
+title: The particle は
+tags: [grammar]
 ---
 
 ## Question
-À quoi sert la particule は ?
+What is the particle は used for?
 
-## Réponse
-Elle marque le thème de la phrase.
+## Answer
+It marks the topic of the sentence.
 ```
 
-Sans sections `## Question` / `## Réponse`, c'est une fiche de synthèse : tout le texte
-s'affiche et tu notes si tu t'en souvenais. Tu peux écrire les fiches à la main dans
-ton éditeur (ou Obsidian), elles sont relues à chaque commande.
+Without `## Question` / `## Answer` sections, it is a summary card: the whole text is
+shown and you grade whether you remembered it. You can write cards by hand in your
+editor (or Obsidian); they are re-read on every command.
 
-`plan.json` : pour chaque matière, la durée d'une séance, les jours (`lun`…`dim` ou `tous`)
-et une priorité (1 haute à 3 basse). `budget_by_day` permet d'avoir plus de temps le week-end.
-Une matière qui n'est pas prévue ce jour-là mais a des fiches en retard reçoit une révision courte.
+`plan.json`: for each subject, the length of a session, the days (`mon`…`sun` or `all`)
+and a priority (1 high to 3 low). `budget_by_day` gives you more time on weekends.
+A subject that is not scheduled on a given day but has overdue cards gets a short session.
 
 ## Architecture
 
 ```
 brained/
-  models.py    Card, ReviewState, Goal, Settings  (données pures)
-  storage.py   lecture/écriture Markdown + JSON   (seul module qui touche au disque)
-  srs.py       algorithme de révision espacée (SM-2 simplifié)
-  planner.py   fiches dues + plan du jour (règles)
-  cli.py       interface en ligne de commande (aucune logique métier)
+  models.py    Card, ReviewState, Goal, Settings  (plain data)
+  storage.py   Markdown + JSON read/write          (the only module that touches disk)
+  srs.py       spaced repetition algorithm (simplified SM-2)
+  planner.py   due cards + daily plan (rules)
+  cli.py       command-line interface (no business logic)
 ```
 
-Prévu pour la suite sans tout réécrire :
-- **App mobile** : les fiches sont des fichiers Markdown + JSON, faciles à synchroniser
-  ou à exposer via une petite API qui réutilise `storage` et `srs`.
-- **Agent planificateur (IA)** : remplacer ou enrichir `planner.plan_day`, qui garde la même
-  entrée (objectifs, fiches dues) et la même sortie (liste de séances).
-- **Rappels** : une tâche planifiée (cron, notification) qui appelle `plan_day` chaque matin.
+Designed so the next steps don't require a rewrite:
+- **Mobile app**: cards are Markdown + JSON files, easy to sync or to expose through
+  a small API that reuses `storage` and `srs`.
+- **Planning agent (AI)**: replace or extend `planner.plan_day`, which keeps the same
+  input (goals, due cards) and the same output (a list of sessions).
+- **Reminders**: a scheduled job (cron, notification) that calls `plan_day` every morning.
 
 ## Tests
 

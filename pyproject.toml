@@ -1,7 +1,7 @@
 [project]
 name = "brained"
 version = "0.1.0"
-description = "Cerveau externe : fiches de révision, révision espacée, plan du jour."
+description = "External brain: flashcards, spaced repetition, daily plan."
 requires-python = ">=3.10"
 dependencies = []
 

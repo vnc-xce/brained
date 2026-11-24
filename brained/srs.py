@@ -1,6 +1,6 @@
-"""Révision espacée : variante simple de SM-2 (celle d'Anki, en plus court).
+"""Spaced repetition: a simple variant of SM-2 (the algorithm behind Anki).
 
-Notes : 0 = raté, 1 = difficile, 2 = ok, 3 = facile.
+Grades: 0 = again, 1 = hard, 2 = good, 3 = easy.
 """
 
 from __future__ import annotations
@@ -11,15 +11,15 @@ from datetime import date, timedelta
 from brained.models import ReviewState
 
 AGAIN, HARD, GOOD, EASY = 0, 1, 2, 3
-GRADE_LABELS = {AGAIN: "raté", HARD: "difficile", GOOD: "ok", EASY: "facile"}
+GRADE_LABELS = {AGAIN: "again", HARD: "hard", GOOD: "good", EASY: "easy"}
 
 MIN_EASE = 1.3
 
 
 def schedule(state: ReviewState, grade: int, today: date) -> ReviewState:
-    """Renvoie le nouvel état après une révision notée `grade` le jour `today`."""
+    """Return the new state after a review graded `grade` on `today`."""
     if grade not in GRADE_LABELS:
-        raise ValueError(f"note invalide : {grade}")
+        raise ValueError(f"invalid grade: {grade}")
 
     ease = state.ease
     reps = state.reps

@@ -1,14 +1,14 @@
-"""Stockage sur disque, en formats portables.
+"""On-disk storage, in portable formats.
 
-Organisation du dossier de données :
+Data folder layout:
 
     data/
-      cards/<matiere>/<id>.md   une fiche = un fichier Markdown avec en-tête
-      reviews.json              état de révision de chaque fiche
-      plan.json                 objectifs par matière et réglages
+      cards/<subject>/<id>.md   one card = one Markdown file with a header
+      reviews.json              review state of every card
+      plan.json                 goals per subject and settings
 
-Le reste du code ne passe que par la classe `Store` : une future app mobile ou
-une API pourra la remplacer (base SQLite, synchro cloud...) sans toucher à la logique.
+The rest of the code only goes through the `Store` class: a future mobile app
+or API can replace it (SQLite, cloud sync...) without touching the logic.
 """
 
 from __future__ import annotations
@@ -20,12 +20,10 @@ from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
-from brained.models import Card, Goal, ReviewState, Settings
-
-DAY_NAMES = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
+from brained.models import DAY_NAMES, Card, Goal, ReviewState, Settings
 
 _QA_RE = re.compile(
-    r"^##\s*Question\s*\n(?P<q>.*?)^##\s*R[ée]ponse\s*\n(?P<a>.*)\Z",
+    r"^##\s*Question\s*\n(?P<q>.*?)^##\s*Answer\s*\n(?P<a>.*)\Z",
     re.S | re.M | re.I,
 )
 
@@ -33,7 +31,7 @@ _QA_RE = re.compile(
 def slugify(text: str) -> str:
     text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
     text = re.sub(r"[^a-zA-Z0-9]+", "-", text).strip("-").lower()
-    return text or "fiche"
+    return text or "card"
 
 
 # --- Markdown -----------------------------------------------------------------
@@ -83,7 +81,7 @@ def render_card(card: Card) -> str:
     lines.append("---")
     lines.append("")
     if card.is_qa:
-        lines += ["## Question", card.question.strip(), "", "## Réponse", card.answer.strip()]
+        lines += ["## Question", card.question.strip(), "", "## Answer", card.answer.strip()]
     else:
         lines.append(card.question.strip())
     return "\n".join(lines) + "\n"
@@ -110,10 +108,10 @@ def _parse_days(days: list) -> list[int]:
     for d in days:
         if isinstance(d, int):
             result.append(d)
+        elif str(d).lower() in ("all", "*", "daily"):
+            return list(range(7))
         elif str(d).lower()[:3] in DAY_NAMES:
             result.append(DAY_NAMES.index(str(d).lower()[:3]))
-        elif str(d).lower() in ("tous", "all", "*"):
-            return list(range(7))
     return sorted(set(result))
 
 
@@ -126,7 +124,7 @@ class Store:
         self.reviews_path = self.root / "reviews.json"
         self.plan_path = self.root / "plan.json"
 
-    # Fiches
+    # Cards
     def load_cards(self) -> list[Card]:
         cards = []
         for path in sorted(self.cards_dir.glob("**/*.md")):
@@ -148,7 +146,7 @@ class Store:
             candidate, n = f"{base}-{n}", n + 1
         return candidate
 
-    # Révisions
+    # Reviews
     def load_reviews(self) -> dict[str, ReviewState]:
         if not self.reviews_path.exists():
             return {}
@@ -175,7 +173,7 @@ class Store:
             Goal(
                 subject=name,
                 minutes=int(g.get("minutes", 30)),
-                days=_parse_days(g.get("days", ["tous"])),
+                days=_parse_days(g.get("days", ["all"])),
                 priority=int(g.get("priority", 2)),
             )
             for name, g in raw.get("subjects", {}).items()
