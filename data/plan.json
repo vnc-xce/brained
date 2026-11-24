@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "daily_budget_minutes": 90,
+    "new_cards_per_day": 10,
+    "review_minutes_per_card": 1.0,
+    "budget_by_day": {"sam": 240, "dim": 120}
+  },
+  "subjects": {
+    "japonais": {"minutes": 30, "days": ["tous"], "priority": 1},
+    "espagnol": {"minutes": 30, "days": ["lun", "mer", "ven", "dim"], "priority": 2},
+    "cybersecurite": {"minutes": 45, "days": ["mar", "jeu", "sam"], "priority": 2},
+    "poterie": {"minutes": 120, "days": ["sam"], "priority": 1}
+  }
+}
